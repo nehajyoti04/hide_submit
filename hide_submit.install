@@ -12,15 +12,26 @@
  */
 function hide_submit_uninstall() {
   // Delete any variables that have been set.
-  variable_del('hide_submit_method');
-  variable_del('hide_submit_css');
-  variable_del('hide_submit_abtext');
-  variable_del('hide_submit_atext');
-  variable_del('hide_submit_hide_css');
-  variable_del('hide_submit_hide_text');
-  variable_del('hide_submit_hide_fx');
-  variable_del('hide_submit_reset_time');
-  variable_del('hide_submit_indicator_style');
-  variable_del('hide_submit_spinner_color');
-  variable_del('hide_submit_spinner_lines');
+  \Drupal::config('hide_submit.settings')->clear('hide_submit_method')->save();
+  \Drupal::config('hide_submit.settings')->clear('hide_submit_css')->save();
+  \Drupal::config('hide_submit.settings')->clear('hide_submit_abtext')->save();
+  \Drupal::config('hide_submit.settings')->clear('hide_submit_atext')->save();
+  \Drupal::config('hide_submit.settings')->clear('hide_submit_hide_css')->save();
+  \Drupal::config('hide_submit.settings')->clear('hide_submit_hide_text')->save();
+  \Drupal::config('hide_submit.settings')->clear('hide_submit_hide_fx')->save();
+  \Drupal::config('hide_submit.settings')->clear('hide_submit_reset_time')->save();
+  \Drupal::config('hide_submit.settings')->clear('hide_submit_indicator_style')->save();
+  \Drupal::config('hide_submit.settings')->clear('hide_submit_spinner_color')->save();
+  \Drupal::config('hide_submit.settings')->clear('hide_submit_spinner_lines')->save();
+  \Drupal::state()->delete('hide_submit.settings');
+  // Delete all the hide_submit variables and then clear the variable cache.
+  global $conf;
+  if (isset($conf)) {
+    foreach (array_keys($conf) as $key) {
+      // Find variables that have the module prefix.
+      if (strpos($key, 'hide_submit') === 0) {
+        Drupal::state()->delete($key);
+      }
+    }
+  }
 }
