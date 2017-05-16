@@ -1,17 +1,42 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\hide_submit\Form\HideSubmitSettings.
- */
-
 namespace Drupal\hide_submit\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Class HideSubmitSettings.
+ *
+ * @package Drupal\hide_submit\Form
+ */
 class HideSubmitSettings extends ConfigFormBase {
+
+  /**
+   * The configuration factory.
+   *
+   * @var \Drupal\Core\Config\Config
+   */
+  protected $config;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(ConfigFactoryInterface $config_factory) {
+    $this->config = $config_factory->getEditable('hide_submit.settings');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+    // Load the service required to construct this class.
+      $container->get('config.factory')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -27,78 +52,80 @@ class HideSubmitSettings extends ConfigFormBase {
     return ['hide_submit.settings'];
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
     $form = [];
-
 
     $form['hide_submit_method'] = [
       '#type' => 'select',
       '#options' => [
-        'disable' => t('Disable the submit buttons.'),
-        'hide' => t('Hide the submit buttons.'),
-        'indicator' => t('Built-in loading indicator.'),
+        'disable' => $this->t('Disable the submit buttons.'),
+        'hide' => $this->t('Hide the submit buttons.'),
+        'indicator' => $this->t('Built-in loading indicator.'),
       ],
-      '#default_value' => \Drupal::config('hide_submit.settings')->get('hide_submit_method'),
-      '#title' => t('Blocking method'),
-      '#description' => t('Choose the blocking method.'),
+      '#default_value' => $this->config->get('hide_submit_method'),
+      '#title' => $this->t('Blocking method'),
+      '#description' => $this->t('Choose the blocking method.'),
     ];
 
     $form['hide_submit_reset_time'] = [
       '#type' => 'number',
-      '#title' => t('Reset buttons after some time (ms).'),
-      '#description' => t('Enter a value in milliseconds after which all buttons will be enabled. To disable this enter 0.'),
-      '#default_value' => \Drupal::config('hide_submit.settings')->get('hide_submit_reset_time'),
+      '#title' => $this->t('Reset buttons after some time (ms).'),
+      '#description' => $this->t('Enter a value in milliseconds after which all buttons will be enabled. To disable this enter 0.'),
+      '#default_value' => $this->config->get('hide_submit_reset_time'),
       '#required' => TRUE,
     ];
 
     $form['hide_submit_disable'] = [
       '#type' => 'fieldset',
-      '#title' => t('Disabling settings'),
+      '#title' => $this->t('Disabling settings'),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
     ];
 
     $form['hide_submit_disable']['hide_submit_abtext'] = [
       '#type' => 'textfield',
-      '#title' => t('Append to buttons'),
-      '#description' => t('This text will be appended to each of the submit buttons.'),
-      '#default_value' => \Drupal::config('hide_submit.settings')->get('hide_submit_abtext'),
+      '#title' => $this->t('Append to buttons'),
+      '#description' => $this->t('This text will be appended to each of the submit buttons.'),
+      '#default_value' => $this->config->get('hide_submit_abtext'),
     ];
 
     $form['hide_submit_disable']['hide_submit_atext'] = [
       '#type' => 'textarea',
-      '#title' => t('Add next to buttons'),
-      '#description' => t('This text will be added next to the submit buttons.'),
-      '#default_value' => \Drupal::config('hide_submit.settings')->get('hide_submit_atext'),
+      '#title' => $this->t('Add next to buttons'),
+      '#description' => $this->t('This text will be added next to the submit buttons.'),
+      '#default_value' => $this->config->get('hide_submit_atext'),
     ];
 
     $form['hide_submit_hide'] = [
       '#type' => 'fieldset',
-      '#title' => t('Hiding settings'),
+      '#title' => $this->t('Hiding settings'),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
     ];
 
     $form['hide_submit_hide']['hide_submit_hide_fx'] = [
       '#type' => 'checkbox',
-      '#title' => t('Use fade effects?'),
-      '#default_value' => \Drupal::config('hide_submit.settings')->get('hide_submit_hide_fx'),
-      '#description' => t('Enabling a fade in / out effect.'),
+      '#title' => $this->t('Use fade effects?'),
+      '#default_value' => $this->config->get('hide_submit_hide_fx'),
+      '#description' => $this->t('Enabling a fade in / out effect.'),
     ];
 
     $form['hide_submit_hide']['hide_submit_hide_text'] = [
       '#type' => 'textfield',
-      '#title' => t('Processing text'),
-      '#default_value' => \Drupal::config('hide_submit.settings')->get('hide_submit_hide_text'),
-      '#description' => t('This text will be shown to the user instead of the submit buttons.'),
+      '#title' => $this->t('Processing text'),
+      '#default_value' => $this->config->get('hide_submit_hide_text'),
+      '#description' => $this->t('This text will be shown to the user instead of the submit buttons.'),
     ];
 
     $form['hide_submit_indicator'] = [
       '#type' => 'fieldset',
-      '#title' => t('Indicator settings'),
+      '#title' => $this->t('Indicator settings'),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
-      '#description' => t('Choose the spinner style as defined by the
+      '#description' => $this->t('Choose the spinner style as defined by the
       <a href="@library" target="_blank" rel="noopener">ladda.js jQuery library
       </a>. Examples of these styles can be found on the <a href="@examples"
       target="_blank" rel="noopener">Ladda example page</a>.', [
@@ -110,40 +137,40 @@ class HideSubmitSettings extends ConfigFormBase {
     $form['hide_submit_indicator']['hide_submit_indicator_style'] = [
       '#type' => 'select',
       '#options' => [
-        'expand-left' => t('expand-left'),
-        'expand-right' => t('expand-right'),
-        'expand-up' => t('expand-up'),
-        'expand-down' => t('expand-down'),
-        'contract' => t('contract'),
-        'contract-overlay' => t('contract-overlay'),
-        'zoom-in' => t('zoom-in'),
-        'zoom-out' => t('zoom-out'),
-        'slide-left' => t('slide-left'),
-        'slide-right' => t('slide-right'),
-        'slide-up' => t('slide-up'),
-        'slide-down' => t('slide-down'),
+        'expand-left' => $this->t('expand-left'),
+        'expand-right' => $this->t('expand-right'),
+        'expand-up' => $this->t('expand-up'),
+        'expand-down' => $this->t('expand-down'),
+        'contract' => $this->t('contract'),
+        'contract-overlay' => $this->t('contract-overlay'),
+        'zoom-in' => $this->t('zoom-in'),
+        'zoom-out' => $this->t('zoom-out'),
+        'slide-left' => $this->t('slide-left'),
+        'slide-right' => $this->t('slide-right'),
+        'slide-up' => $this->t('slide-up'),
+        'slide-down' => $this->t('slide-down'),
       ],
-      '#default_value' => \Drupal::config('hide_submit.settings')->get('hide_submit_indicator_style'),
-      '#title' => t('Built-In Loading Indicator Style'),
+      '#default_value' => $this->config->get('hide_submit_indicator_style'),
+      '#title' => $this->t('Built-In Loading Indicator Style'),
     ];
 
     $form['hide_submit_indicator']['hide_submit_spinner_color'] = [
       '#type' => 'select',
       '#options' => [
-        '#000' => t('Black'),
-        '#A9A9A9' => t('Dark Grey'),
-        '#808080' => t('Grey'),
-        '#D3D3D3' => t('Light Grey'),
-        '#fff' => t('White'),
+        '#000' => $this->t('Black'),
+        '#A9A9A9' => $this->t('Dark Grey'),
+        '#808080' => $this->t('Grey'),
+        '#D3D3D3' => $this->t('Light Grey'),
+        '#fff' => $this->t('White'),
       ],
-      '#default_value' => \Drupal::config('hide_submit.settings')->get('hide_submit_spinner_color'),
-      '#title' => t('Built-In Loading Indicator Spinner Color'),
+      '#default_value' => $this->config->get('hide_submit_spinner_color'),
+      '#title' => $this->t('Built-In Loading Indicator Spinner Color'),
     ];
 
     $form['hide_submit_indicator']['hide_submit_spinner_lines'] = [
       '#type' => 'number',
-      '#title' => t('The number of lines for the spinner'),
-      '#default_value' => \Drupal::config('hide_submit.settings')->get('hide_submit_spinner_lines'),
+      '#title' => $this->t('The number of lines for the spinner'),
+      '#default_value' => $this->config->get('hide_submit_spinner_lines'),
     ];
 
     return parent::buildForm($form, $form_state);
